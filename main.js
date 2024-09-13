@@ -1396,8 +1396,8 @@ class GameOverScene extends Phaser.Scene {
 // Main Phaser configuration for the game
 const config = {
     type: Phaser.AUTO,
-    width: 800,  // Set your desired game width
-    height: 600,  // Set your desired game height
+    width: 800,
+    height: 600,
     physics: {
         default: 'arcade',
         arcade: {
@@ -1405,19 +1405,19 @@ const config = {
         }
     },
     scene: [
-        StartScreen,        // Starting point of the game
-        PlayerSelectScreen, // Scene for selecting the character
-        TutorialScreen,     // Scene for tutorial instructions
-        Level1Scene,        // First game level
-        Level2Transition,   // Transition between Level 1 and Level 2
-        Level2Scene,        // Second game level
-        Level3Transition,   // Transition between Level 2 and Level 3
-        Level3Scene,        // Third game level
-        YouWonScene,        // Victory screen after Level 3
-        GameOverScene       // Game Over scene
+        StartScreen,
+        PlayerSelectScreen,
+        TutorialScreen,
+        Level1Scene,
+        Level2Transition,
+        Level2Scene,
+        Level3Transition,
+        Level3Scene,
+        YouWonScene, 
+        GameOverScene
     ],
-    pixelArt: true,  // Enable pixel art scaling (optional depending on your assets)
-    backgroundColor: '#1b1b1b',  // Background color for non-scene areas (optional)
+    pixelArt: true,
+    backgroundColor: '#1b1b1b',
 };
 
 // Initialize the Phaser game with the config
