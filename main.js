@@ -673,6 +673,8 @@ function shootTongoCard() {
     // console.log(checkingScore)
     this.canShoot = false;
     this.player.anims.play('shoot', true);
+    //Force the anim to play facing right
+
 
     const tongoCard = this.tongoCards.create(this.player.x, this.player.y, 'tongo_card');
     tongoCard.setVelocityX(600);
