@@ -293,7 +293,7 @@ function createScoreDisplay(type, x, y) {
 
     const typeDict = {"checking": 'Direct\nDeposit', "savings": 'Saving For\nTaxes', "business": 'Investments', "retirement": 'Retirement'};
     //add text for the type
-    this.add.text(x, y+20, typeDict[type], { fontSize: '16px', fill: '#000' }).setScrollFactor(0);
+    this.add.text(x, y+20, typeDict[type], { fontSize: '14px', fill: '#000' }).setScrollFactor(0);
 }
 
 function subtractFromScore(amount) {
@@ -534,10 +534,10 @@ function loadNextLevel() {
     createScoreDisplay.call(this, 'savings', 130, 10);
 
     if (this.currentLevel >= 2) {
-        createScoreDisplay.call(this, 'business', 220, 10);
+        createScoreDisplay.call(this, 'business', 250, 10);
     }
     if (this.currentLevel >= 3) {
-        createScoreDisplay.call(this, 'retirement', 310, 10);
+        createScoreDisplay.call(this, 'retirement', 370, 10);
     }
 
     // Lives display
@@ -1232,7 +1232,7 @@ class YouWonScene extends Phaser.Scene {
             // Display the attribute label
             this.add.text(colX, colYStart, attr.label, {
                 fontFamily: 'pixelFont',
-                fontSize: '16px',
+                fontSize: '14px',
                 color: '#000000',
                 align: 'center'
             }).setOrigin(0.5);
@@ -1345,7 +1345,7 @@ class GameOverScene extends Phaser.Scene {
                 // Display the attribute label
                 this.add.text(colX, colYStart, attr.label, {
                     fontFamily: 'pixelFont',
-                    fontSize: '16px',
+                    fontSize: '14px',
                     color: '#000000',
                     align: 'center'
                 }).setOrigin(0.5);
