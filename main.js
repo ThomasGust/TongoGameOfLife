@@ -1314,7 +1314,7 @@ class YouWonScene extends Phaser.Scene {
             .setInteractive();
 
         playButton.on('pointerdown', () => {
-            this.scene.start('StartScreen');
+            this.scene.start('Level1Scene', { character: selectedCharacter });
         });
     }
 
@@ -1427,7 +1427,7 @@ class GameOverScene extends Phaser.Scene {
                 .setInteractive();
 
             playButton.on('pointerdown', () => {
-                this.scene.start('StartScreen');
+                this.scene.start('Level1Scene', { character: selectedCharacter });
             });
         });
     }
