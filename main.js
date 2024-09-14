@@ -291,7 +291,7 @@ function createScoreDisplay(type, x, y) {
     this.scoreDisplays[type].setScale(0.5); 
     this.scoreDisplays[type].setScrollFactor(0);
 
-    const typeDict = {"checking": 'Direct\nDeposit', "savings": 'Tax\nSavings', "business": 'Business\nAccount', "retirement": 'Retirement'};
+    const typeDict = {"checking": 'Direct\nDeposit', "savings": 'Tax\nSavings', "business": 'Investments', "retirement": 'Retirement'};
     //add text for the type
     this.add.text(x, y+20, typeDict[type], { fontSize: '16px', fill: '#000' }).setScrollFactor(0);
 }
@@ -1217,7 +1217,7 @@ class YouWonScene extends Phaser.Scene {
         const scoreAttributes = [
             { label: 'Direct\nDeposit', score: this.checkingScore, color: 'benefitPurple' },
             { label: 'Tax\nSavings', score: this.savingsScore, color: 'benefitGreen' },
-            { label: 'Business\nAccount', score: this.businessScore, color: 'benefitYellow' },
+            { label: 'Investments', score: this.businessScore, color: 'benefitYellow' },
             { label: 'Retirement', score: this.retirementScore, color: 'benefitRed' }
         ];
 
@@ -1329,7 +1329,7 @@ class GameOverScene extends Phaser.Scene {
             const scoreAttributes = [
                 { label: 'Direct\nDeposit', score: this.checkingScore, color: 'benefitPurple' },
                 { label: 'Tax\nSavings', score: this.savingsScore, color: 'benefitGreen' },
-                { label: 'Business\nAccount', score: this.businessScore, color: 'benefitYellow' },
+                { label: 'Investments', score: this.businessScore, color: 'benefitYellow' },
                 { label: 'Retirement', score: this.retirementScore, color: 'benefitRed' }
             ];
 
