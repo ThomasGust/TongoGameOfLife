@@ -33,8 +33,7 @@ function createPlayerAnimations(scene, character) {
     scene.anims.create({
         key: 'shoot',
         frames: scene.anims.generateFrameNumbers(playerKey, { start: 14, end: 15 }),
-        frameRate: 10,
-        duration: 400,
+        frameRate: 20,
         repeat: 0
     });
 
@@ -438,6 +437,7 @@ let businessScore = 0;
 let retirementScore = 0;
 
 function loadNextLevel() {
+    this.isShooting = false; // Add this flag to track shooting state
     if (this.currentLevel > 0) {
         clearLevel(this);
     }
@@ -637,51 +637,46 @@ function spawnBalloon() {
     }
 }
 
-
 function update(time, delta) {
     if (this.isGameOver) return;
-    
-    this.player.setVelocityX(0);
+
+    // Prevent movement or animation changes while shooting
+    if (!this.isShooting) {
+        this.player.setVelocityX(0);
+
+        if (this.cursors.left.isDown) {
+            this.player.setVelocityX(-this.speed);
+            this.player.setFlipX(true);
+
+            if (this.player.body.blocked.down) {
+                this.player.anims.play('run', true);  // Play run if on the ground
+            }
+        } else if (this.cursors.right.isDown) {
+            this.player.setVelocityX(this.speed);
+            this.player.setFlipX(false);
+
+            if (this.player.body.blocked.down) {
+                this.player.anims.play('run', true);  // Play run if on the ground
+            }
+        } else if (this.player.body.blocked.down) {
+            this.player.anims.play('idle', true);  // Play idle when not moving and on the ground
+        }
+
+        // Check if the player is jumping
+        if (!this.player.body.blocked.down) {
+            this.player.anims.play('jump', true);  // Play jump animation while airborne
+        }
+
+        // Handle jump input
+        if (this.cursors.up.isDown && this.player.body.blocked.down) {
+            this.player.setVelocityY(-this.jh);
+            this.player.anims.play('jump', true);  // Start jump animation when jumping
+        }
+    }
+
     if (this.spaceBar.isDown && this.canShoot) {
         this.shootTongoCard();
     }
-    // Check for movement and ground status
-    if (this.cursors.left.isDown) {
-        this.player.setVelocityX(-this.speed);
-        this.player.setFlipX(true);
-
-        if (this.player.body.blocked.down) {
-            this.player.anims.play('run', true);  // Play run if on the ground
-        }
-    } else if (this.cursors.right.isDown) {
-        this.player.setVelocityX(this.speed);
-        this.player.setFlipX(false);
-
-        if (this.player.body.blocked.down) {
-            this.player.anims.play('run', true);  // Play run if on the ground
-        }
-    } else if (this.player.body.blocked.down) {
-        this.player.anims.play('idle', true);  // Play idle when not moving and on the ground
-    }
-
-    // Check if the player is jumping
-    if (!this.player.body.blocked.down) {
-        this.player.anims.play('jump', true);  // Play jump animation while airborne
-    }
-
-    // Handle jump input
-    if (this.cursors.up.isDown && this.player.body.blocked.down) {
-        this.player.setVelocityY(-this.jh);
-        this.player.anims.play('jump', true);  // Start jump animation when jumping
-    }
-
-    /*
-    if (this.player.x >= this.physics.world.bounds.width - 50) {
-        this.currentLevel++;
-        this.loadNextLevel = loadNextLevel.bind(this);
-        this.loadNextLevel();
-    }
-    */
 
     if (time > this.nextBalloonTime) {
         this.spawnBalloon();
@@ -692,23 +687,35 @@ function update(time, delta) {
     this.updateScoreDisplay();
 }
 
+
 function shootTongoCard() {
     if (checkingScore < 100) return;
-    if (!this.canShoot) return;
+    if (!this.canShoot || this.isShooting) return;
 
     this.subtractFromScore(100);
     this.canShoot = false;
+    this.isShooting = true; // Player is now shooting
 
-    // Play the shooting animation, ensure it plays facing the correct direction
-    this.player.anims.play('shoot', true);
+    // Stop any other animations
+    this.player.anims.stop();
 
+    // Play the shooting animation
+    this.player.anims.play('shoot', true).once('animationcomplete', () => {
+        // Shooting complete, return to idle or run
+        this.isShooting = false; // Shooting is complete
+        if (this.cursors.left.isDown || this.cursors.right.isDown) {
+            this.player.anims.play('run', true);
+        } else {
+            this.player.anims.play('idle', true);
+        }
+    });
 
     // Determine the direction the player is facing
     const facingRight = !this.player.flipX;
 
     // Create the card at the player's position
     const tongoCard = this.tongoCards.create(this.player.x, this.player.y, 'tongo_card');
-    
+
     // Set the velocity based on the facing direction
     tongoCard.setVelocityX(facingRight ? 600 : -600);
     tongoCard.body.allowGravity = false;
@@ -722,6 +729,7 @@ function shootTongoCard() {
         this.canShoot = true;
     }.bind(this));
 }
+
 
 
 function checkBalloons() {
