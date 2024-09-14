@@ -1218,7 +1218,7 @@ class YouWonScene extends Phaser.Scene {
         // Load static assets
         this.load.image('background', 'assets/background/sky.png');
         this.load.image('gameOverBanner', 'assets/ui/templates/youWon.png');
-        this.load.image('playButton', 'assets/ui/buttons/playagain.png');
+        this.load.image('playAgainButton', 'assets/ui/buttons/playagain.png');
 
         // Load benefit meter textures
         for (let i = 1; i <= 5; i++) {
@@ -1309,7 +1309,7 @@ class YouWonScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         // Play Again button
-        const playButton = this.add.image(width / 2, height * 0.85, 'playButton')
+        const playButton = this.add.image(width / 2, height * 0.85, 'playAgainButton')
             .setDisplaySize(220, 60)
             .setInteractive();
 
@@ -1342,7 +1342,7 @@ class GameOverScene extends Phaser.Scene {
     preload() {
         // Load static assets for the UI elements
         this.load.image('youLose', 'assets/ui/templates/gameOver.png');
-        this.load.image('playButton', 'assets/ui/buttons/playagain.png');
+        this.load.image('playAgainButton', 'assets/ui/buttons/playagain.png');
 
         // Load benefit meter textures
         for (let i = 1; i <= 5; i++) {
@@ -1422,8 +1422,8 @@ class GameOverScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             // Play Again button
-            const playButton = this.add.image(width / 2, height * 0.85, 'playButton')
-                .setDisplaySize(220, 60)
+            const playButton = this.add.image(width / 2, height * 0.85, 'playAgainButton')
+                .setDisplaySize(260, 60)
                 .setInteractive();
 
             playButton.on('pointerdown', () => {
