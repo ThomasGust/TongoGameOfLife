@@ -531,13 +531,13 @@ function loadNextLevel() {
 
     console.log('Current level:', this.currentLevel);
     createScoreDisplay.call(this, 'checking', 10, 10);
-    createScoreDisplay.call(this, 'savings', 100, 10);
+    createScoreDisplay.call(this, 'savings', 130, 10);
 
     if (this.currentLevel >= 2) {
-        createScoreDisplay.call(this, 'business', 190, 10);
+        createScoreDisplay.call(this, 'business', 220, 10);
     }
     if (this.currentLevel >= 3) {
-        createScoreDisplay.call(this, 'retirement', 280, 10);
+        createScoreDisplay.call(this, 'retirement', 310, 10);
     }
 
     // Lives display
