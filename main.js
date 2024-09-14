@@ -226,10 +226,10 @@ function updateScoreDisplay() {
                 this.scoreDisplays[type].flickering = true;
 
                 const flickerSequence = [
-                    { delay: 100, texture: currentTexture },  // Flicker back to current texture
-                    { delay: 200, texture: newTexture },      // Flicker up to new texture
+                    { delay: 300, texture: currentTexture },  // Flicker back to current texture
+                    { delay: 300, texture: newTexture },      // Flicker up to new texture
                     { delay: 300, texture: currentTexture },  // Flicker down to current texture
-                    { delay: 400, texture: newTexture },      // Final change to new texture
+                    { delay: 300, texture: newTexture },      // Final change to new texture
                 ];
                 flickerSequence.forEach(({ delay, texture }) => {
                     this.time.delayedCall(delay, () => {
