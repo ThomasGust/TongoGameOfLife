@@ -18,8 +18,9 @@ def render(paths, op):
 if __name__ == "__main__":
     # Get all the images in the assets folder
     paths = [
-        "assets\\background\\tongo_background_level-03-skyline-light.png",
-        "assets\\background\\tongo_background-level-03-houses.png",
+        "assets\\_backgrounds\\tongo_background-level-01-grass.png",
+        "assets\\_backgrounds\\tongo_background-level-01-trees.png",
+        "assets\\_backgrounds\\tongo_background-level-01-houses.png",
     ]
     
     render(paths, "output.png")
