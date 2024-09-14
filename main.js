@@ -697,21 +697,32 @@ function shootTongoCard() {
     if (!this.canShoot) return;
 
     this.subtractFromScore(100);
-    // console.log(checkingScore)
     this.canShoot = false;
+
+    // Play the shooting animation, ensure it plays facing the correct direction
     this.player.anims.play('shoot', true);
-    //Force the anim to play facing right
 
 
+    // Determine the direction the player is facing
+    const facingRight = !this.player.flipX;
+
+    // Create the card at the player's position
     const tongoCard = this.tongoCards.create(this.player.x, this.player.y, 'tongo_card');
-    tongoCard.setVelocityX(600);
+    
+    // Set the velocity based on the facing direction
+    tongoCard.setVelocityX(facingRight ? 600 : -600);
     tongoCard.body.allowGravity = false;
     tongoCard.anims.play('rotate', true);
 
+    // Flip the card based on direction
+    tongoCard.setFlipX(!facingRight);  // Flip the card's sprite if facing left
+
+    // Set cooldown before next shot
     this.time.delayedCall(this.shootCooldown, function() {
         this.canShoot = true;
     }.bind(this));
 }
+
 
 function checkBalloons() {
     this.balloons.getChildren().forEach(balloon => {
