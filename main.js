@@ -203,6 +203,9 @@ function updateScoreDisplay() {
         { type: 'retirement', score: retirementScore }
     ];
 
+    //Type2idx
+    const type2idx = {'checking': 0, 'savings': 1, 'business': 2, 'retirement': 3};
+
     scoreMapping.forEach(({ type, score }) => {
         let newTexture;
         if (score <= 0) {
@@ -225,21 +228,44 @@ function updateScoreDisplay() {
                 // Set the flickering flag to true to prevent overlapping sequences
                 this.scoreDisplays[type].flickering = true;
 
+                const originalY = this.scoreDisplays[type].y;
+                const offsetY = 10;  // Amount of jiggle
+
+                // Define flicker and jiggle sequences
                 const flickerSequence = [
                     { delay: 300, texture: currentTexture },  // Flicker back to current texture
                     { delay: 300, texture: newTexture },      // Flicker up to new texture
                     { delay: 300, texture: currentTexture },  // Flicker down to current texture
                     { delay: 300, texture: newTexture },      // Final change to new texture
                 ];
-                flickerSequence.forEach(({ delay, texture }) => {
-                    this.time.delayedCall(delay, () => {
+
+                const jiggleSequence = [
+                    { delay: 300, jiggle: originalY + offsetY }, // Jiggle up
+                    { delay: 300, jiggle: originalY },           // Jiggle back to original Y
+                    { delay: 300, jiggle: originalY + offsetY }, // Jiggle up again
+                    { delay: 300, jiggle: originalY },           // Back to original Y
+                ];
+
+                // Loop through flicker and jiggle sequences
+                flickerSequence.forEach(({ delay, texture }, index) => {
+                    this.time.delayedCall(delay * (index + 1), () => {
                         this.scoreDisplays[type].setTexture(texture);
                     });
                 });
 
-                // At the end of the flickering sequence, reset the flickering flag
-                this.time.delayedCall(500, () => {
+                jiggleSequence.forEach(({ delay, jiggle }, index) => {
+                    this.time.delayedCall(delay * (index + 1), () => {
+                        this.scoreDisplays[type].y = jiggle;
+                        this.scoreTexts[type2idx[type]].y = jiggle + 20;
+                    });
+                });
+
+                // After the final flicker, reset the flickering flag and position
+                const totalDuration = 1200;  // Total time for 4 cycles of flickering and jiggle
+                this.time.delayedCall(totalDuration, () => {
                     this.scoreDisplays[type].flickering = false;
+                    this.scoreDisplays[type].y = originalY;  // Ensure the Y position is reset
+                    this.scoreTexts[type2idx[type]].y = originalY + 20;
                 });
             }
         }
@@ -293,7 +319,7 @@ function createScoreDisplay(type, x, y) {
 
     const typeDict = {"checking": 'Direct\nDeposit', "savings": 'Saving For\nTaxes', "business": 'Investments', "retirement": 'Retirement'};
     //add text for the type
-    this.add.text(x, y+20, typeDict[type], { fontSize: '14px', fill: '#000' }).setScrollFactor(0);
+    this.scoreTexts.push(this.add.text(x, y+20, typeDict[type], { fontSize: '14px', fill: '#000' }).setScrollFactor(0));
 }
 
 function subtractFromScore(amount) {
@@ -530,6 +556,7 @@ function loadNextLevel() {
     this.cameras.main.startFollow(this.player);
 
     console.log('Current level:', this.currentLevel);
+    this.scoreTexts = [];
     createScoreDisplay.call(this, 'checking', 10, 10);
     createScoreDisplay.call(this, 'savings', 130, 10);
 
