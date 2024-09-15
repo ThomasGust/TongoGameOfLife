@@ -83,7 +83,7 @@ function createCardAnimations(scene){
 }
 
 function __preload() {
-    if (this.currentLevel === 1) {
+    this.assetsLoaded = false;
     // Load Tiled map and tileset
     this.load.tilemapTiledJSON('level1', 'assets/level1.json');
     this.load.tilemapTiledJSON('level2', 'assets/level2.json');
@@ -131,32 +131,29 @@ function __preload() {
     this.load.spritesheet('staging_balloon', 'assets/balloons/staging_sm.png', {frameWidth: 48, frameHeight:120});
 
    // Ensure the game waits for the tiles to be loaded
+   this.tileNames = [];
+   fetch('assets/tiles.json')
+       .then(response => response.json())
+       .then(fileList => {
+           if (fileList && fileList.files) {
+               // console.log(fileList.files);
+               fileList.files.forEach(file => {
+                   this.tileNames.push(file.name);
+                   this.load.image(file.name, file.path);
+                   //Increase image saturation
+
+               });
+           }
+       })
+       .catch(error => {
+           console.error('Error loading tiles JSON:', error);
+       });
     }
-
-    this.tileNames = [];
-    fetch('assets/tiles.json')
-        .then(response => response.json())
-        .then(fileList => {
-            if (fileList && fileList.files) {
-                // console.log(fileList.files);
-                fileList.files.forEach(file => {
-                    this.tileNames.push(file.name);
-                    this.load.image(file.name, file.path);
-                    //Increase image saturation
-
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error loading tiles JSON:', error);
-        });
-   // load UI asset
-}
-
 
 function _preload() {
     this.__preload = __preload.bind(this);
     this.__preload();
+
 
     // Load score display images
     this.load.image('checking_0', 'assets/ui/scoring/tongo_UI_benefit-meter_purple-00.png');
@@ -453,6 +450,7 @@ let businessScore = 0;
 let retirementScore = 0;
 
 function loadNextLevel() {
+    this.hasLoaded = false;
     const checkCondition = setInterval(() => {
         if (this.assetsLoaded) {
             clearInterval(checkCondition);
@@ -764,6 +762,9 @@ class Level1Scene extends Phaser.Scene {
         super({ key: 'Level1Scene' });
         this.currentLevel = 1;
         this.maxLevel = 3;
+        this.assetsLoaded = false; // Reset assetsLoaded
+        this.hasLoaded = false;    // Reset hasLoaded
+        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
@@ -849,6 +850,9 @@ class Level2Scene extends Phaser.Scene {
         super({ key: 'Level2Scene' });
         this.currentLevel = 2;
         this.maxLevel = 3;
+        this.assetsLoaded = false; // Reset assetsLoaded
+        this.hasLoaded = false;    // Reset hasLoaded
+        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
@@ -930,6 +934,9 @@ class Level3Scene extends Phaser.Scene {
         super({ key: 'Level3Scene' });
         this.currentLevel = 3;
         this.maxLevel = 3;
+        this.assetsLoaded = false; // Reset assetsLoaded
+        this.hasLoaded = false;    // Reset hasLoaded
+        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
@@ -994,6 +1001,7 @@ class Level3Scene extends Phaser.Scene {
 
     update(time, delta) {
         if (!this.hasLoaded) return;
+        if (!this.assetsLoaded) return ;
         update.call(this, time, delta);
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
