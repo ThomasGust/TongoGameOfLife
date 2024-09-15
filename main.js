@@ -1,82 +1,70 @@
 // animations.js
 let backgroundMusic;
-function createPlayerAnimations(scene, character) {
+function createPlayerAnimations(character) {
     const playerKey = character === 'male' ? 'malePlayer' : 'femalePlayer';
-
-    // Optionally destroy any existing animations to ensure they are recreated for the new character
-    scene.anims.remove('idle');
-    scene.anims.remove('run');
-    scene.anims.remove('jump');
-    scene.anims.remove('shoot');
-    scene.anims.remove('die');
-
-    // Create animations for the selected character
-    scene.anims.create({
+    console.log("CREATING ANIMATIONS FOR", playerKey);
+    this.anims.create({
         key: 'idle',
-        frames: scene.anims.generateFrameNumbers(playerKey, { start: 0, end: 2 }),
+        frames: this.anims.generateFrameNumbers(playerKey, { start: 0, end: 2 }),
         frameRate: 7
     });
 
-    scene.anims.create({
+    this.anims.create({
         key: 'run',
-        frames: scene.anims.generateFrameNumbers(playerKey, { start: 8, end: 13 }),
+        frames: this.anims.generateFrameNumbers(playerKey, { start: 8, end: 13 }),
         frameRate: 10,
         repeat: -1
     });
 
-    scene.anims.create({
+    this.anims.create({
         key: 'jump',
         frames: [{ key: playerKey, frame: 7 }],
         frameRate: 5,
         repeat: -1
     });
 
-    scene.anims.create({
+    this.anims.create({
         key: 'shoot',
-        frames: scene.anims.generateFrameNumbers(playerKey, { start: 14, end: 15 }),
+        frames: this.anims.generateFrameNumbers(playerKey, { start: 14, end: 15 }),
         frameRate: 20,
         repeat: 0
     });
 
-    scene.anims.create({
+    this.anims.create({
         key: 'die',
-        frames: scene.anims.generateFrameNumbers(playerKey, { start: 16, end: 17 }),
+        frames: this.anims.generateFrameNumbers(playerKey, { start: 16, end: 17 }),
         frameRate: 2
     });
 }
 
-function createBalloonAnimations(scene) {
-    if (scene.currentLevel === 1) {
-    //iterate through ['boss', 'rent', 'medical', 'groceries', 'car', 'staging', 'ski', 'tuition', 'phone', 'jewelry']
-    //create animations for each balloon type
-    //each balloon type has 2 animations: move and pop
+function createBalloonAnimations() {
+    if (this.currentLevel === 1) {
 
-    //const balloonTypes = ['boss', 'rent', 'medical', 'groceries', 'car', 'staging', 'ski', 'tuition', 'phone', 'jewelry'];
     const balloonTypes = ['boss_balloon', 'rent_balloon', 'medical_balloon', 'groceries_balloon', 'car_balloon', 'staging_balloon', 'ski_balloon', 'tuition_balloon', 'phone_balloon', 'jewelry_balloon'];
     
     for (let i = 0; i < balloonTypes.length; i++) {
         const type = balloonTypes[i];
-        scene.anims.create({
+        this.anims.create({
             key: `${type}_move`,
-            frames: scene.anims.generateFrameNumbers(type, { start: 0, end: 1 }),
+            frames: this.anims.generateFrameNumbers(type, { start: 0, end: 1 }),
             frameRate: 5,
             repeat: -1
         });
 
-        scene.anims.create({
+        this.anims.create({
             key: `${type}_pop`,
-            frames: scene.anims.generateFrameNumbers(type, { start: 2, end: 4 }),
+            frames: this.anims.generateFrameNumbers(type, { start: 2, end: 4 }),
             frameRate: 5,
-            hideOnComplete: true
+            hideOnComsplete: true
         });
     }
 }
 }
 
-function createCardAnimations(scene){
-    scene.anims.create({
+function createCardAnimations(){
+    this.anims.create({
         key: 'rotate',
-        frames: scene.anims.generateFrameNumbers('tongo_card', { start: 0, end: 7 }),
+        frames: this.anims.generateFrameNumbers('tongo_card', { start: 0, end: 7 }),
         frameRate: 7,
         repeat: -1
     });
@@ -369,9 +357,9 @@ function gameOver() {
     // Wait for the animation to complete before transitioning to the GameOverScene
     this.player.on('animationcomplete', () => {
         // Delay clearing the level after the animation is complete
-        this.clearLevel();
-        selectedCharacter = null;
-        this.scene.start('GameOverScene', { checkingScore, savingsScore, businessScore, retirementScore });
+        //this.clearLevel();
+        //this.selectedCharacter = null;
+        this.scene.start('GameOverScene', { checkingScore, savingsScore, businessScore, retirementScore, character: this.selectedCharacter });
     });
 }
 
@@ -454,19 +442,15 @@ function loadNextLevel() {
     const checkCondition = setInterval(() => {
         if (this.assetsLoaded) {
             clearInterval(checkCondition);
-    //Only load next level when assets are loaded
-    this.player = this.physics.add.sprite(100, 100, selectedCharacter);
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(0.75);
 
-    // Manually resize the player's physics body to match the sprite dimensions
-    this.player.body.setSize(64, 128);  // Adjust these numbers to fit the actual sprite size
+            this.createPlayerAnimations = createPlayerAnimations.bind(this);
+            this.createBalloonAnimations = createBalloonAnimations.bind(this);
+            this.createCardAnimations = createCardAnimations.bind(this);
 
-    //Bring the player to the front
-    this.player.setDepth(1);
+            this.createPlayerAnimations(this.selectedCharacter);
+            this.createBalloonAnimations();
+            this.createCardAnimations();
 
-    // If the physics body is offset (not centered), adjust the offset
-    this.player.body.setOffset(32, 0);  // Adjust these numbers to fit the actual sprite size
     this.isShooting = false; // Add this flag to track shooting state
     if (this.currentLevel > 0) {
         clearLevel(this);
@@ -535,7 +519,24 @@ function loadNextLevel() {
     // console.log(this.scoreItems);
 
     this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+    
+        const playerKey = this.selectedCharacter === 'male' ? 'malePlayer' : 'femalePlayer';
+        console.log("CREATINGG SPRITE FOR", playerKey);
+        //Only load next level when assets are loaded
+        this.player = this.physics.add.sprite(100, 100, playerKey);
+        this.player.setCollideWorldBounds(true);
+        this.player.setScale(0.75);
+    
+        // Manually resize the player's physics body to match the sprite dimensions
+        this.player.body.setSize(64, 128);  // Adjust these numbers to fit the actual sprite size
+    
+        //Bring the player to the front
+        this.player.setDepth(1);
+    
+        // If the physics body is offset (not centered), adjust the offset
+        this.player.body.setOffset(32, 0);  // Adjust these numbers to fit the actual sprite size
 
+        this.player.anims.play('idle', true);
 
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.player, this.platformColliders);
@@ -574,6 +575,7 @@ function loadNextLevel() {
         this.lives.push(heart);
     }
     this.hasLoaded = true;
+    this.isGameOver = false;
 }}, 100);
 }
 
@@ -645,6 +647,7 @@ function spawnBalloon() {
 }
 
 function update(time, delta) {
+    console.log('UPDATE', this.hasLoaded, this.isGameOver);
     if (!this.hasLoaded) return;
     if (this.isGameOver) return;
 
@@ -755,23 +758,21 @@ function checkBalloons() {
     });
 }
 
-let selectedCharacter;
 
 class Level1Scene extends Phaser.Scene {
     constructor() {
         super({ key: 'Level1Scene' });
+        this.isGameOver = false;
         this.currentLevel = 1;
         this.maxLevel = 3;
-        this.assetsLoaded = false; // Reset assetsLoaded
-        this.hasLoaded = false;    // Reset hasLoaded
-        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
         // Receive data from the previous scene or initialize defaults
         this.livesCount = data.livesCount || 3;
-        selectedCharacter = data.character || 'male'; // Default to 'male' if not selected
+        this.selectedCharacter = data.character || 'male'; // Default to 'male' if not selected
         this.currentLevel = 1
+        console.log('SELECTED CHARACTER:', this.selectedCharacter);
     }
 
     preload() {
@@ -781,7 +782,7 @@ class Level1Scene extends Phaser.Scene {
 
     create() {
         this.setupGame();
-
+        
         this.loadNextLevel();
         if (backgroundMusic){
             backgroundMusic.stop();
@@ -828,9 +829,6 @@ class Level1Scene extends Phaser.Scene {
             this.lives.push(heart);
         }
 
-        createPlayerAnimations(this, selectedCharacter);
-        createBalloonAnimations(this);
-        createCardAnimations(this);
     }
 
     update(time, delta) {
@@ -840,7 +838,7 @@ class Level1Scene extends Phaser.Scene {
         if (this.player.x >= this.physics.world.bounds.width - 50) {
             this.clearLevel();
             this.currentLevel++;
-            this.scene.start('Level2Transition', {livesCount: this.livesCount, character: selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
+            this.scene.start('Level2Transition', {livesCount: this.livesCount, character: this.selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
         }
     }
 }
@@ -850,15 +848,12 @@ class Level2Scene extends Phaser.Scene {
         super({ key: 'Level2Scene' });
         this.currentLevel = 2;
         this.maxLevel = 3;
-        this.assetsLoaded = false; // Reset assetsLoaded
-        this.hasLoaded = false;    // Reset hasLoaded
-        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
         // Receive data from the previous scene
         this.livesCount = data.livesCount || 3;
-        selectedCharacter = data.character || 'male';
+        this.selectedCharacter = data.character || 'male';
 
     }
 
@@ -910,9 +905,6 @@ class Level2Scene extends Phaser.Scene {
             this.lives.push(heart);
         }
 
-        createPlayerAnimations(this, selectedCharacter);
-        createBalloonAnimations(this);
-        createCardAnimations(this);
 
         //make player faster
     }
@@ -924,7 +916,7 @@ class Level2Scene extends Phaser.Scene {
         if (this.player.x >= this.physics.world.bounds.width - 50) {
             this.clearLevel();
             this.currentLevel++;
-            this.scene.start('Level3Transition', { score: this.score, livesCount: this.livesCount, character: selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
+            this.scene.start('Level3Transition', { score: this.score, livesCount: this.livesCount, character: this.selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
         }
     }
 }
@@ -934,15 +926,12 @@ class Level3Scene extends Phaser.Scene {
         super({ key: 'Level3Scene' });
         this.currentLevel = 3;
         this.maxLevel = 3;
-        this.assetsLoaded = false; // Reset assetsLoaded
-        this.hasLoaded = false;    // Reset hasLoaded
-        this.isGameOver = false;   // Reset isGameOver
     }
 
     init(data) {
         // Receive data from the previous scene
         this.livesCount = data.livesCount || 3;
-        selectedCharacter = data.character || 'male';
+        this.selectedCharacter = data.character || 'male';
 
     }
 
@@ -993,10 +982,6 @@ class Level3Scene extends Phaser.Scene {
             heart.setScrollFactor(0);
             this.lives.push(heart);
         }
-
-        createPlayerAnimations(this, selectedCharacter);
-        createBalloonAnimations(this);
-        createCardAnimations(this);
     }
 
     update(time, delta) {
@@ -1006,7 +991,7 @@ class Level3Scene extends Phaser.Scene {
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
             this.clearLevel();
-            selectedCharacter = null;
+            this.selectedCharacter = null;
             this.scene.start('YouWonScene', { checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
         }
     }
@@ -1134,7 +1119,7 @@ class TutorialScreen extends Phaser.Scene {
 class PlayerSelectScreen extends Phaser.Scene {
     constructor() {
         super({ key: 'PlayerSelectScreen' });
-        selectedCharacter = null;
+        this.selectedCharacter = null;
     }
 
     preload() {
@@ -1158,18 +1143,16 @@ class PlayerSelectScreen extends Phaser.Scene {
         const cycImage = this.add.image(centerX, centerY - bannerHeight / 2 + 50, 'chooseYourCharacter');
         cycImage.setDisplaySize(400, 25);
 
-        let selectedCharacter = null;
-
         const characterSize = 150;
         const characterOffset = bannerWidth * 0.2;
 
         const femaleCharacter = this.add.image(centerX - characterOffset, centerY, 'femaleCharacter').setDisplaySize(characterSize, characterSize).setInteractive({ useHandCursor: true }).on('pointerdown', () => {
-            selectedCharacter = 'female';
+            this.selectedCharacter = 'female';
             highlightSelected(femaleCharacter, maleCharacter);
         });
 
         const maleCharacter = this.add.image(centerX + characterOffset, centerY, 'maleCharacter').setDisplaySize(characterSize, characterSize).setInteractive({ useHandCursor: true }).on('pointerdown', () => {
-            selectedCharacter = 'male';
+            this.selectedCharacter = 'male';
             highlightSelected(maleCharacter, femaleCharacter);
         });
 
@@ -1182,8 +1165,8 @@ class PlayerSelectScreen extends Phaser.Scene {
         }
 
         playButton.on('pointerdown', () => {
-            if (selectedCharacter) {
-                this.scene.start('Level1Scene', { character: selectedCharacter });
+            if (this.selectedCharacter) {
+                this.scene.start('Level1Scene', { character: this.selectedCharacter });
             }
         });
     }
@@ -1196,7 +1179,7 @@ class Level2Transition extends Phaser.Scene {
 
     init(data) {
         this.livesCount = data.livesCount;
-        selectedCharacter = data.character;
+        this.selectedCharacter = data.character;
     }
 
     preload() {
@@ -1223,7 +1206,7 @@ class Level2Transition extends Phaser.Scene {
         const playButton = this.add.image(centerX, centerY + 200, 'playButton').setDisplaySize(120, 40).setInteractive({ useHandCursor: true });
 
         playButton.on('pointerdown', () => {
-            this.scene.start('Level2Scene', {livesCount: this.livesCount, character: selectedCharacter });
+            this.scene.start('Level2Scene', {livesCount: this.livesCount, character: this.selectedCharacter });
         });
     }
 }
@@ -1235,7 +1218,7 @@ class Level3Transition extends Phaser.Scene {
 
     init(data) {
         this.livesCount = data.livesCount;
-        selectedCharacter = data.character;
+        this.selectedCharacter = data.character;
     }
 
     preload() {
@@ -1262,7 +1245,7 @@ class Level3Transition extends Phaser.Scene {
         const playButton = this.add.image(centerX, centerY + 200, 'playButton').setDisplaySize(120, 40).setInteractive({ useHandCursor: true });
 
         playButton.on('pointerdown', () => {
-            this.scene.start('Level3Scene', {livesCount: this.livesCount, character: selectedCharacter });
+            this.scene.start('Level3Scene', {livesCount: this.livesCount, character: this.selectedCharacter });
         });
     }
 }
@@ -1385,7 +1368,7 @@ class YouWonScene extends Phaser.Scene {
             .setInteractive();
 
         playButton.on('pointerdown', () => {
-            this.scene.start('Level1Scene', { character: selectedCharacter });
+            this.scene.start('Level1Scene', { character: this.selectedCharacter });
         });
     }
 
@@ -1408,6 +1391,7 @@ class GameOverScene extends Phaser.Scene {
         this.savingsScore = data.savingsScore || 0;
         this.businessScore = data.businessScore || 0;
         this.retirementScore = data.retirementScore || 0;
+        this.selectedCharacter = data.character;
     }
 
     preload() {
@@ -1503,7 +1487,7 @@ class GameOverScene extends Phaser.Scene {
                 .setInteractive();
 
             playButton.on('pointerdown', () => {
-                this.scene.start('Level1Scene', { character: selectedCharacter });
+                this.scene.start('Level1Scene', { character: this.selectedCharacter });
             });
         });
     }
