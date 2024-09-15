@@ -607,7 +607,11 @@ function spawnBalloon() {
 
     const balloonTexture = Phaser.Utils.Array.GetRandom(balloonDict[balloonType]);
     const mapHeight = this.map.heightInPixels;
-    const balloon = this.balloons.create(this.map.widthInPixels, Phaser.Math.Between(mapHeight * 0.2, mapHeight * 0.8), balloonTexture);
+
+    //calculate new x as the current x position of the cameras right edge
+    const x = this.cameras.main.scrollX + this.game.config.width + 50;
+
+    const balloon = this.balloons.create(x, Phaser.Math.Between(mapHeight * 0.2, mapHeight * 0.8), balloonTexture);
     balloon.setVelocityX(-100);
     balloon.body.allowGravity = false;
     balloon.anims.play(`${balloonTexture}_move`, true);
@@ -1354,7 +1358,7 @@ class GameOverScene extends Phaser.Scene {
                 .setStrokeStyle(4, 0x000000);
 
             // Add the game over banner
-            const banner = this.add.image(width / 2, (height * 0.21) + 20, 'youLose')
+            const banner = this.add.image(width / 2, (height * 0.27) + 20, 'youLose')
                 .setDisplaySize((rectWidth * 0.9), ((rectHeight * 0.3) + 30));
 
             // Define score attributes

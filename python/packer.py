@@ -35,7 +35,7 @@ def create_spritesheet(image_folder, output_file, tile_width=32, tile_height=32,
     spritesheet.save(output_file)
 
 # Example usage
-image_folder = "assets\\papercranefactory_tongo_game-asset_balloons\\tongo_game-asset_balloon-sm-staging"  # Folder containing individual images
-output_file = "assets\\balloons\\staging_sm.png"  # Name of the output spritesheet
+image_folder = "assets\\new_male"  # Folder containing individual images
+output_file = "assets\\male.png"  # Name of the output spritesheet
 columns = 3  # Number of columns
-create_spritesheet(image_folder, output_file, columns=columns, tile_width=48, tile_height=120)
+create_spritesheet(image_folder, output_file, columns=columns, tile_width=128, tile_height=128)
