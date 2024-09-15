@@ -787,6 +787,8 @@ class Level1Scene extends Phaser.Scene {
         }
         backgroundMusic = this.sound.add('level1Music', { loop: true });
         backgroundMusic.play();
+        //set volume
+        backgroundMusic.setVolume(0.75);
     }
 
     setupGame() {
