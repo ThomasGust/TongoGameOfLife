@@ -5,4 +5,6 @@ This is the working draft as of September 15th, 2024. All mechanics and UI are p
 
 I have also fixed any of the bugs or changes uncovered through PaperCraneFactory's playtesting.
 
+EDIT:STILL A PROBLEM WITH PLAYER LOADING AFTER GAME OVER TODO #1 PRIORITY. writing this on my phone right now but i will fix the code as soon as i am back home.
+
 To integrate with the actual website, you should pretty much be able to directly embed main.js into a frame within your own HTML.
