@@ -186,6 +186,9 @@ function _preload() {
     this.load.image('heart_empty', 'assets/ui/lives/tongo_ui_lives-empty.png');
     this.load.image('heart_full', 'assets/ui/lives/tongo_ui_lives-full.png');
 
+    //load sound
+    this.load.audio('coin', 'assets/sounds/coin.wav');
+
     this.assetsLoaded = true;
 }
 
