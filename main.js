@@ -750,10 +750,19 @@ function shootTongoCard() {
 function checkBalloons() {
     this.balloons.getChildren().forEach(balloon => {
         if (balloon.x < 0) {
+            if (balloon.texture.key === 'boss_balloon') {
+                this.loseLife();
+                this.loseLife();
+                this.loseLife();
+                this.sound.play('hitSound');
+                balloon.destroy();
+            }
+            else {
             this.loseLife();
             //play hit sound
             this.sound.play('hitSound');
             balloon.destroy();
+            }
         }
     });
 }
