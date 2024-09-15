@@ -141,19 +141,13 @@ function __preload() {
                 fileList.files.forEach(file => {
                     this.tileNames.push(file.name);
                     this.load.image(file.name, file.path);
+                    //Increase image saturation
+
                 });
             }
         })
         .catch(error => {
             console.error('Error loading tiles JSON:', error);
-        })
-        .finally(() => {
-            // Ensure this event is triggered only when all assets are loaded
-            this.load.once('complete', () => {
-                // console.log('All assets loaded.');
-            });
- 
-            this.load.start();
         });
    // load UI asset
 }
@@ -191,6 +185,8 @@ function _preload() {
     // Load heart images for lives
     this.load.image('heart_empty', 'assets/ui/lives/tongo_ui_lives-empty.png');
     this.load.image('heart_full', 'assets/ui/lives/tongo_ui_lives-full.png');
+
+    this.assetsLoaded = true;
 }
 
 function updateScoreDisplay() {
@@ -437,6 +433,22 @@ let businessScore = 0;
 let retirementScore = 0;
 
 function loadNextLevel() {
+    const checkCondition = setInterval(() => {
+        if (this.assetsLoaded) {
+            clearInterval(checkCondition);
+    //Only load next level when assets are loaded
+    this.player = this.physics.add.sprite(100, 100, selectedCharacter);
+    this.player.setCollideWorldBounds(true);
+    this.player.setScale(0.75);
+
+    // Manually resize the player's physics body to match the sprite dimensions
+    this.player.body.setSize(64, 128);  // Adjust these numbers to fit the actual sprite size
+
+    //Bring the player to the front
+    this.player.setDepth(1);
+
+    // If the physics body is offset (not centered), adjust the offset
+    this.player.body.setOffset(32, 0);  // Adjust these numbers to fit the actual sprite size
     this.isShooting = false; // Add this flag to track shooting state
     if (this.currentLevel > 0) {
         clearLevel(this);
@@ -453,16 +465,6 @@ function loadNextLevel() {
     addBackground(this, 'sky');
     const bgKey = `background${this.currentLevel}`;
     addBackground(this, bgKey);
-
-    //load male or female player based on selection
-    /*
-    this.player = this.physics.add.sprite(100, 100, 'player');
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(0.75);
-    */
-
-    // console.log('Selected character:', selectedCharacter);
- 
     if (this.currentLevel == 1){
 
     this.tileNames.forEach(tileName => {
@@ -490,16 +492,6 @@ function loadNextLevel() {
             this.physics.add.existing(collider, true);
             collider.body.setSize(tile.width * 0.25, tile.height * 0.25);
             this.platformColliders.add(collider);
-            
-            /*
-            //also draw the image of the tile here
-            const tileName = this.tileNames[tile.index - 1];
-            const tileSprite = this.add.sprite(worldX, worldY + tile.height/4, tileName);
-            tileSprite.setOrigin(0, 1);
-            tileSprite.displayWidth = tile.width*0.25;
-            tileSprite.displayHeight = tile.height*0.25;
-            */
-            
         }
     });
 
@@ -525,19 +517,6 @@ function loadNextLevel() {
     // console.log(this.scoreItems);
 
     this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-
-    // console.log('FKASFASFASF ', selectedCharacter)
-    this.player = this.physics.add.sprite(100, 100, selectedCharacter);
-    this.player.setCollideWorldBounds(true);
-    this.player.setScale(0.75);
-
-    // Manually resize the player's physics body to match the sprite dimensions
-    this.player.body.setSize(64, 128);  // Adjust these numbers to fit the actual sprite size
-
-    // If the physics body is offset (not centered), adjust the offset
-    this.player.body.setOffset(32, 0);  // Adjust these numbers to fit the actual sprite size
-
-    // console.log(this.currentLevel)
 
 
     this.physics.add.collider(this.player, this.platforms);
@@ -576,7 +555,10 @@ function loadNextLevel() {
         heart.setScrollFactor(0);
         this.lives.push(heart);
     }
+    this.hasLoaded = true;
+}}, 100);
 }
+
 
 function popBalloon(tongoCard, balloon) {
     tongoCard.destroy(); // Destroy the Tongo card after hitting the balloon
@@ -638,6 +620,7 @@ function spawnBalloon() {
 }
 
 function update(time, delta) {
+    if (!this.hasLoaded) return;
     if (this.isGameOver) return;
 
     // Prevent movement or animation changes while shooting
@@ -811,6 +794,7 @@ class Level1Scene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        if (!this.hasLoaded) return;
         update.call(this, time, delta);
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
@@ -886,6 +870,7 @@ class Level2Scene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        if (!this.hasLoaded) return;
         update.call(this, time, delta);
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
@@ -960,6 +945,7 @@ class Level3Scene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        if (!this.hasLoaded) return;
         update.call(this, time, delta);
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
