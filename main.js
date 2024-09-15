@@ -1,4 +1,5 @@
 // animations.js
+let backgroundMusic;
 function createPlayerAnimations(scene, character) {
     const playerKey = character === 'male' ? 'malePlayer' : 'femalePlayer';
 
@@ -187,7 +188,22 @@ function _preload() {
     this.load.image('heart_full', 'assets/ui/lives/tongo_ui_lives-full.png');
 
     //load sound
-    this.load.audio('coin', 'assets/sounds/coin.wav');
+    this.load.audio('coinSound', 'assets/sounds/coin.wav');
+
+    this.load.audio('gameOverSound', 'assets/sounds/gameOver.wav');
+    this.load.audio('youWonSound', 'assets/sounds/youWon.wav');
+
+    this.load.audio('hitSound', 'assets/sounds/hurt.wav');
+    this.load.audio('jumpSound', 'assets/sounds/jump.wav');
+    this.load.audio('shootSound', 'assets/sounds/throw.wav');
+    this.load.audio('popSound', 'assets/sounds/pop.wav');
+    this.load.audio('levelUpSound', 'assets/sounds/levelUp.wav');
+
+    this.load.audio('lobbyMusic', 'assets/sounds/lobbyMusic.mp3');
+    this.load.audio('level1Music', 'assets/sounds/retroloop1.mp3');
+    this.load.audio('level2Music', 'assets/sounds/retroloop2.mp3');
+    this.load.audio('level3Music', 'assets/sounds/retroloop3.mp3');
+
 
     this.assetsLoaded = true;
 }
@@ -293,6 +309,7 @@ function collectScoreItem(player, scoreItem) {
         const amount = parseInt(currentTextureKey.slice(0));
         // console.log(amount);
         this.addToScore(100*amount);
+        this.sound.play('coinSound');
     }
 }
 
@@ -576,6 +593,7 @@ function popBalloon(tongoCard, balloon) {
             this.time.delayedCall(1000, function() {
                 balloon.destroy();
             });
+            this.sound.play('popSound');
         }
     } else {
         // For normal balloons, pop and destroy immediately
@@ -583,7 +601,9 @@ function popBalloon(tongoCard, balloon) {
         this.time.delayedCall(1000, function() {
             balloon.destroy();
         });
+        this.sound.play('popSound');
     }
+    // Play the pop sound
 }
 
 
@@ -661,6 +681,7 @@ function update(time, delta) {
         if (this.cursors.up.isDown && this.player.body.blocked.down) {
             this.player.setVelocityY(-this.jh);
             this.player.anims.play('jump', true);  // Start jump animation when jumping
+            this.sound.play('jumpSound');
         }
     }
 
@@ -714,6 +735,9 @@ function shootTongoCard() {
     // Flip the card based on direction
     tongoCard.setFlipX(!facingRight);  // Flip the card's sprite if facing left
 
+    // Play the shooting sound
+    this.sound.play('shootSound');
+
     // Set cooldown before next shot
     this.time.delayedCall(this.shootCooldown, function() {
         this.canShoot = true;
@@ -726,6 +750,8 @@ function checkBalloons() {
     this.balloons.getChildren().forEach(balloon => {
         if (balloon.x < 0) {
             this.loseLife();
+            //play hit sound
+            this.sound.play('hitSound');
             balloon.destroy();
         }
     });
@@ -756,7 +782,11 @@ class Level1Scene extends Phaser.Scene {
         this.setupGame();
 
         this.loadNextLevel();
-        //this.spawnBalloon();
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        backgroundMusic = this.sound.add('level1Music', { loop: true });
+        backgroundMusic.play();
     }
 
     setupGame() {
@@ -834,7 +864,12 @@ class Level2Scene extends Phaser.Scene {
     create() {
         this.setupGame();
         this.loadNextLevel();
-        //this.spawnBalloon();
+        
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        backgroundMusic = this.sound.add('level2Music', { loop: true });
+        backgroundMusic.play();
     }
 
     setupGame() {
@@ -911,7 +946,11 @@ class Level3Scene extends Phaser.Scene {
 
         this.setupGame();
         this.loadNextLevel();
-        //this.spawnBalloon();
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        backgroundMusic = this.sound.add('level3Music', { loop: true });
+        backgroundMusic.play();
     }
 
     setupGame() {
@@ -969,15 +1008,20 @@ class StartScreen extends Phaser.Scene {
     }
 
     preload() {
+        this._preload = _preload.bind(this);
+        this._preload(); // Preload assets for Level 3
+
         this.clearLevel = clearLevel.bind(this);
         this.clearLevel();
         this.load.image('background', 'assets/background/sky.png');
         this.load.image('welcome', 'assets/ui/templates/welcome.png');
         this.load.image('leftButton', 'assets/ui/buttons/left_button.png');
         this.load.image('rightButton', 'assets/ui/buttons/right_button.png');
+
     }
 
     create() {
+
         const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDisplaySize(this.scale.width, this.scale.height);
 
         const insetFactor = 0.8;
@@ -1006,6 +1050,15 @@ class StartScreen extends Phaser.Scene {
             // console.log('Opening Tutorial Screen');
             this.scene.start('TutorialScreen');
         });
+
+        if (backgroundMusic && backgroundMusic.key !== 'lobbyMusic') {
+            backgroundMusic.stop();
+        }
+        
+        if (!backgroundMusic || backgroundMusic.key !== 'lobbyMusic') {
+            backgroundMusic = this.sound.add('lobbyMusic', { loop: true });
+            backgroundMusic.play();
+        }
     }
 
     fitToContainer(image, maxWidth, maxHeight) {
@@ -1143,6 +1196,11 @@ class Level2Transition extends Phaser.Scene {
     }
 
     create() {
+        //play transition music
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        this.sound.play('levelUpSound');
         const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'skyBackground');
         bg.setDisplaySize(this.scale.width, this.scale.height);
 
@@ -1177,6 +1235,11 @@ class Level3Transition extends Phaser.Scene {
     }
 
     create() {
+        //play transition music
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        this.sound.play('levelUpSound');
         const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'skyBackground');
         bg.setDisplaySize(this.scale.width, this.scale.height);
 
@@ -1223,6 +1286,11 @@ class YouWonScene extends Phaser.Scene {
     }
 
     create() {
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        //play you won music
+        this.sound.play('youWonSound');
         const { width, height } = this.scale;
 
         // Add the sky background
@@ -1347,6 +1415,11 @@ class GameOverScene extends Phaser.Scene {
     }
 
     create() {
+        if (backgroundMusic){
+            backgroundMusic.stop();
+        }
+        //play game over music
+        this.sound.play('gameOverSound');
         const { width, height } = this.scale;
 
         // Create a black rectangle to fill the entire screen
