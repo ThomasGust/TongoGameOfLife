@@ -338,7 +338,7 @@ function subtractFromScore(amount) {
 
 function loseLife() {
     this.livesCount--;
-
+    
     this.updateLivesDisplay();
 
     if (this.livesCount <= 0) {
