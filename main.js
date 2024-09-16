@@ -3,6 +3,15 @@ let backgroundMusic;
 function createPlayerAnimations(character) {
     const playerKey = character === 'male' ? 'malePlayer' : 'femalePlayer';
     console.log("CREATING ANIMATIONS FOR", playerKey);
+
+
+    //Destroy old animations if they exist
+    this.anims.remove('idle');
+    this.anims.remove('run');
+    this.anims.remove('jump');
+    this.anims.remove('shoot');
+    this.anims.remove('die');
+    
     this.anims.create({
         key: 'idle',
         frames: this.anims.generateFrameNumbers(playerKey, { start: 0, end: 2 }),
@@ -1184,6 +1193,7 @@ class PlayerSelectScreen extends Phaser.Scene {
 
         playButton.on('pointerdown', () => {
             if (this.selectedCharacter) {
+                console.log('Starting Level 1 with character:', this.selectedCharacter);
                 this.scene.start('Level1Scene', { character: this.selectedCharacter });
             }
         });
@@ -1386,7 +1396,7 @@ class YouWonScene extends Phaser.Scene {
             .setInteractive();
 
         playButton.on('pointerdown', () => {
-            this.scene.start('Level1Scene', { character: this.selectedCharacter });
+            this.scene.start('StartScreen', { character: this.selectedCharacter });
         });
     }
 
@@ -1505,7 +1515,7 @@ class GameOverScene extends Phaser.Scene {
                 .setInteractive();
 
             playButton.on('pointerdown', () => {
-                this.scene.start('Level1Scene', { character: this.selectedCharacter });
+                this.scene.start('StartScreen', { character: this.selectedCharacter });
             });
         });
     }
