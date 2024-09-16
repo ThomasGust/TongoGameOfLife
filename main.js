@@ -879,7 +879,6 @@ class Level1Scene extends Phaser.Scene {
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
             this.clearLevel();
-            this.currentLevel++;
             this.scene.start('Level2Transition', {livesCount: this.livesCount, character: this.selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
         }
     }
@@ -957,7 +956,6 @@ class Level2Scene extends Phaser.Scene {
 
         if (this.player.x >= this.physics.world.bounds.width - 50) {
             this.clearLevel();
-            this.currentLevel++;
             this.scene.start('Level3Transition', { score: this.score, livesCount: this.livesCount, character: this.selectedCharacter, checkingScore: checkingScore, savingsScore: savingsScore, businessScore: businessScore, retirementScore: retirementScore });
         }
     }
@@ -1227,7 +1225,7 @@ class Level2Transition extends Phaser.Scene {
 
     preload() {
         this.load.image('skyBackground', 'assets/background/sky.png');
-        this.load.image('transitionImage', 'assets/ui/templates/level2.png');
+        this.load.image('transitionImage2', 'assets/ui/templates/level2.png');
         this.load.image('playButton', 'assets/ui/buttons/play.png');
     }
 
@@ -1244,7 +1242,7 @@ class Level2Transition extends Phaser.Scene {
         const centerY = this.scale.height / 2;
 
         const whiteRectangle = this.add.rectangle(centerX, centerY, 380, 460, 0xFFFFFF).setStrokeStyle(4, 0x000000);
-        const transitionImage = this.add.image(centerX, centerY - 20, 'transitionImage').setDisplaySize(320, 325);
+        const transitionImage3 = this.add.image(centerX, centerY - 20, 'transitionImage2').setDisplaySize(320, 325);
 
         const playButton = this.add.image(centerX, centerY + 200, 'playButton').setDisplaySize(120, 40).setInteractive({ useHandCursor: true });
 
@@ -1283,7 +1281,7 @@ class Level3Transition extends Phaser.Scene {
         const centerY = this.scale.height / 2;
 
         const whiteRectangle = this.add.rectangle(centerX, centerY, 380, 460, 0xFFFFFF).setStrokeStyle(4, 0x000000);
-        const transitionImage = this.add.image(centerX, centerY - 20, 'transitionImage3').setDisplaySize(320, 325);
+        const transitionImage3 = this.add.image(centerX, centerY - 20, 'transitionImage3').setDisplaySize(320, 325);
 
         const playButton = this.add.image(centerX, centerY + 200, 'playButton').setDisplaySize(120, 40).setInteractive({ useHandCursor: true });
 
