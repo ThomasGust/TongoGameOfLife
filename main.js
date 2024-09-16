@@ -299,14 +299,20 @@ function collectScoreItem(player, scoreItem) {
 }
 
 function addToScore(amount) {
-    if (checkingScore < 1000) {
+    if (this.currentLevel === 1) {
         checkingScore += amount;
-    } else if (savingsScore < 1000) {
-        savingsScore += amount;
-    } else if (businessScore < 1000 && this.currentLevel >= 2) {
-        businessScore += amount;
-    } else if (retirementScore < 1000 && this.currentLevel >= 3) {
-        retirementScore += amount;
+        savingsScore += amount*1.5;
+    }
+    else if (this.currentLevel === 2) {
+        checkingScore += amount;
+        businessScore += amount*1.5;
+        savingsScore += amount*3;
+    }
+    else if (this.currentLevel === 3) {
+        checkingScore += amount;
+        businessScore += amount*1.5;
+        savingsScore += amount*3;
+        retirementScore += amount*6;
     }
 
     this.updateScoreDisplay();
@@ -323,19 +329,19 @@ function createScoreDisplay(type, x, y) {
 }
 
 function subtractFromScore(amount) {
-    if (retirementScore >= amount && this.currentLevel >= 3) {
-        retirementScore -= amount;
-    } else if (businessScore >= amount && this.currentLevel >= 2) {
-        businessScore -= amount;
-    } else if (savingsScore >= amount) {
-        savingsScore -= amount;
-    } else if (checkingScore >= amount) {
-        checkingScore -= amount;
-    }
+   if (checkingScore >= amount) {
+    checkingScore -= amount;
+} else if (savingsScore >= amount) {
+    savingsScore -= amount;
+} else if (businessScore >= amount && this.currentLevel >= 2) {
+    businessScore -= amount;
+} else if (retirementScore >= amount && this.currentLevel >= 3) {
+    retirementScore -= amount;
+}
+
 
     this.updateScoreDisplay();
 }
-
 function loseLife() {
     this.livesCount--;
     
@@ -701,7 +707,9 @@ function update(time, delta) {
 
 
 function shootTongoCard() {
-    if (checkingScore < 100) return;
+    if (checkingScore <= 100 && savingsScore <= 100 && this.currentLevel == 1) return;
+    if (checkingScore <= 100 && savingsScore <= 100 && businessScore <= 100 && this.currentLevel == 2) return;
+    if (checkingScore <= 100 && savingsScore <= 100 && businessScore <= 100 && retirementScore <= 100 && this.currentLevel == 3) return;
     if (!this.canShoot || this.isShooting) return;
 
     this.subtractFromScore(100);
