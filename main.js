@@ -11,7 +11,7 @@ function createPlayerAnimations(character) {
     this.anims.remove('jump');
     this.anims.remove('shoot');
     this.anims.remove('die');
-    
+
     this.anims.create({
         key: 'idle',
         frames: this.anims.generateFrameNumbers(playerKey, { start: 0, end: 2 }),
@@ -1537,7 +1537,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 }
+            gravity: { y: 250 }
         }
     },
     scene: [
