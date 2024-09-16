@@ -650,20 +650,29 @@ function spawnBalloon() {
     //make the time longer on the first level
     if (this.currentLevel === 1){
         const x = this.cameras.main.scrollX + this.game.config.width + 200;
+        const balloon = this.balloons.create(x, Phaser.Math.Between(mapHeight * 0.2, mapHeight * 0.8), balloonTexture);
+        balloon.setVelocityX(-100);
+        balloon.body.allowGravity = false;
+        balloon.anims.play(`${balloonTexture}_move`, true);
+        balloon.refreshBody();
+            // Assign health to the boss balloon
+    if (balloonType === 'boss') {
+        balloon.health = 3; // Boss balloon takes 3 hits
+    }
+    
     }
     else {
     const x = this.cameras.main.scrollX + this.game.config.width + 50;
-    }
-
     const balloon = this.balloons.create(x, Phaser.Math.Between(mapHeight * 0.2, mapHeight * 0.8), balloonTexture);
     balloon.setVelocityX(-100);
     balloon.body.allowGravity = false;
     balloon.anims.play(`${balloonTexture}_move`, true);
     balloon.refreshBody();
+        // Assign health to the boss balloon
+        if (balloonType === 'boss') {
+            balloon.health = 3; // Boss balloon takes 3 hits
+        }
 
-    // Assign health to the boss balloon
-    if (balloonType === 'boss') {
-        balloon.health = 3; // Boss balloon takes 3 hits
     }
 }
 
