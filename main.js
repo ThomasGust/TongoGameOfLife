@@ -1070,7 +1070,7 @@ class StartScreen extends Phaser.Scene {
         const whiteRectangle = this.add.rectangle(centerX, centerY, rectangleWidth, rectangleHeight, 0xFFFFFF).setStrokeStyle(4, 0x000000);
 
         const welcomeImage = this.add.image(centerX, centerY - rectangleHeight * 0.13, 'welcome');
-        this.fitToContainer(welcomeImage, rectangleWidth * 1.6, rectangleHeight * 0.7);
+        this.fitToContainer(welcomeImage, rectangleWidth * 1.5, rectangleHeight * 0.6);
 
         const leftButton = this.add.image(centerX - rectangleWidth * 0.15, centerY + rectangleHeight * 0.3, 'leftButton');
         this.fitToContainer(leftButton, 48, 48);
