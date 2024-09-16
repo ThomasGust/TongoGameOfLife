@@ -647,7 +647,13 @@ function spawnBalloon() {
     const mapHeight = this.map.heightInPixels;
 
     //calculate new x as the current x position of the cameras right edge
+    //make the time longer on the first level
+    if (this.currentLevel === 1){
+        const x = this.cameras.main.scrollX + this.game.config.width + 200;
+    }
+    else {
     const x = this.cameras.main.scrollX + this.game.config.width + 50;
+    }
 
     const balloon = this.balloons.create(x, Phaser.Math.Between(mapHeight * 0.2, mapHeight * 0.8), balloonTexture);
     balloon.setVelocityX(-100);
