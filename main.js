@@ -305,13 +305,13 @@ function addToScore(amount) {
     }
     else if (this.currentLevel === 2) {
         checkingScore += amount;
-        businessScore += amount*1.5;
-        savingsScore += amount*3;
+        businessScore += amount*3;
+        savingsScore += amount*1.5;
     }
     else if (this.currentLevel === 3) {
         checkingScore += amount;
-        businessScore += amount*1.5;
-        savingsScore += amount*3;
+        businessScore += amount*3;
+        savingsScore += amount*1.5;
         retirementScore += amount*6;
     }
 
@@ -707,12 +707,13 @@ function update(time, delta) {
 
 
 function shootTongoCard() {
-    if (checkingScore <= 100 && savingsScore <= 100 && this.currentLevel == 1) return;
-    if (checkingScore <= 100 && savingsScore <= 100 && businessScore <= 100 && this.currentLevel == 2) return;
-    if (checkingScore <= 100 && savingsScore <= 100 && businessScore <= 100 && retirementScore <= 100 && this.currentLevel == 3) return;
+    const d = 200;
+    if (checkingScore <= d && savingsScore <= d && this.currentLevel == 1) return;
+    if (checkingScore <= d && savingsScore <= d && businessScore <= d && this.currentLevel == 2) return;
+    if (checkingScore <= d && savingsScore <= d && businessScore <= d && retirementScore <= d && this.currentLevel == 3) return;
     if (!this.canShoot || this.isShooting) return;
 
-    this.subtractFromScore(100);
+    this.subtractFromScore(d);
     this.canShoot = false;
     this.isShooting = true; // Player is now shooting
 
