@@ -1,5 +1,11 @@
 // animations.js
 let backgroundMusic;
+
+// Check if the game is on a mobile device.
+function isMobileDevice() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function createPlayerAnimations(character) {
     const playerKey = character === 'male' ? 'malePlayer' : 'femalePlayer';
     console.log("CREATING ANIMATIONS FOR", playerKey);
@@ -177,6 +183,11 @@ function _preload() {
     this.load.image('retirement_3', 'assets/ui/scoring/tongo_UI_benefit-meter_red-03.png');
     this.load.image('retirement_4', 'assets/ui/scoring/tongo_UI_benefit-meter_red-04.png');
 
+    this.load.image('mobile_left', 'assets/ui/mobile/left.png');
+    this.load.image('mobile_right', 'assets/ui/mobile/right.png');
+    this.load.image('mobile_jump', 'assets/ui/mobile/jump.png');
+    this.load.image('mobile_shoot', 'assets/ui/mobile/shoot.png');
+
     // Load heart images for lives
     this.load.image('heart_empty', 'assets/ui/lives/tongo_ui_lives-empty.png');
     this.load.image('heart_full', 'assets/ui/lives/tongo_ui_lives-full.png');
@@ -203,7 +214,7 @@ function _preload() {
 }
 
 function updateScoreDisplay() {
-    // Update the textures for each score display based on score values
+    // Update the textures for each score display based on score values    
     const scoreMapping = [
         { type: 'checking', score: checkingScore },
         { type: 'savings', score: savingsScore },
@@ -685,22 +696,21 @@ function update(time, delta) {
     if (!this.isShooting) {
         this.player.setVelocityX(0);
 
-        if (this.cursors.left.isDown) {
+        if (this.isLeftPressed || this.cursors.left.isDown) {
             this.player.setVelocityX(-this.speed);
             this.player.setFlipX(true);
 
             if (this.player.body.blocked.down) {
                 this.player.anims.play('run', true);  // Play run if on the ground
             }
-        } else if (this.cursors.right.isDown) {
+        } else if (this.isRightPressed || this.cursors.right.isDown) {
             this.player.setVelocityX(this.speed);
             this.player.setFlipX(false);
 
             if (this.player.body.blocked.down) {
                 this.player.anims.play('run', true);  // Play run if on the ground
             }
-        } else if (this.player.body.blocked.down) {
-            this.player.anims.play('idle', true);  // Play idle when not moving and on the ground
+        } else if (this.player.body.blocked.down) {            this.player.anims.play('idle', true);  // Play idle when not moving and on the ground
         }
 
         // Check if the player is jumping
@@ -709,14 +719,14 @@ function update(time, delta) {
         }
 
         // Handle jump input
-        if (this.cursors.up.isDown && this.player.body.blocked.down) {
+        if ((this.isJumpPressed || this.cursors.up.isDown) && this.player.body.blocked.down) {
             this.player.setVelocityY(-this.jh);
             this.player.anims.play('jump', true);  // Start jump animation when jumping
             this.sound.play('jumpSound');
         }
     }
 
-    if (this.spaceBar.isDown && this.canShoot) {
+    if ((this.spaceBar.isDown || this.isShootPressed) && this.canShoot) {
         this.shootTongoCard();
     }
 
@@ -728,6 +738,7 @@ function update(time, delta) {
     this.checkBalloons();
     this.updateScoreDisplay();
 }
+
 
 
 function shootTongoCard() {
@@ -800,6 +811,58 @@ function checkBalloons() {
     });
 }
 
+function createMobileButtons() {
+    // Add button sprites or graphics for controls
+    this.leftButton = this.add.sprite(50, this.game.canvas.height-50, 'mobile_left').setInteractive();  // Adjust position
+    this.rightButton = this.add.sprite(100, this.game.canvas.height-50, 'mobile_right').setInteractive();
+    this.jumpButton = this.add.sprite(this.game.canvas.width-100, this.game.canvas.height-50, 'mobile_jump').setInteractive();
+    this.shootButton = this.add.sprite(this.game.canvas.width-50, this.game.canvas.height-50, 'mobile_shoot').setInteractive();
+
+    this.leftButton.setScrollFactor(0);
+    this.rightButton.setScrollFactor(0);
+    this.jumpButton.setScrollFactor(0);
+    this.shootButton.setScrollFactor(0);
+
+    this.leftButton.setDepth(10)
+    this.rightButton.setDepth(10)
+    this.jumpButton.setDepth(10)
+    this.shootButton.setDepth(10)
+
+    // Detect touch/click events on buttons
+    this.leftButton.on('pointerdown', () => {
+        this.isLeftPressed = true;
+    });
+    this.leftButton.on('pointerup', () => {
+        this.isLeftPressed = false;
+    });
+
+    this.rightButton.on('pointerdown', () => {
+        this.isRightPressed = true;
+    });
+    this.rightButton.on('pointerup', () => {
+        this.isRightPressed = false;
+    });
+
+    this.jumpButton.on('pointerdown', () => {
+        this.isJumpPressed = true;
+    });
+    this.jumpButton.on('pointerup', () => {
+        this.isJumpPressed = false;
+    });
+
+    this.shootButton.on('pointerdown', () => {
+        this.isShootPressed = true;
+    });
+    this.shootButton.on('pointerup', () => {
+        this.isShootPressed = false;
+    });
+
+    // Variables to track input state
+    this.isLeftPressed = false;
+    this.isRightPressed = false;
+    this.isJumpPressed = false;
+    this.isShootPressed = false;
+}
 
 class Level1Scene extends Phaser.Scene {
     constructor() {
@@ -824,7 +887,10 @@ class Level1Scene extends Phaser.Scene {
 
     create() {
         this.setupGame();
-        
+        if(isMobileDevice()) {
+            this.createMobileButtons = createMobileButtons.bind(this);
+            this.createMobileButtons();
+        }
         this.loadNextLevel();
         if (backgroundMusic){
             backgroundMusic.stop();
@@ -906,7 +972,10 @@ class Level2Scene extends Phaser.Scene {
     create() {
         this.setupGame();
         this.loadNextLevel();
-        
+        if (isMobileDevice()) {
+          this.createMobileButtons = createMobileButtons.bind(this);
+          this.createMobileButtons();
+        }
         if (backgroundMusic){
             backgroundMusic.stop();
         }
@@ -984,6 +1053,10 @@ class Level3Scene extends Phaser.Scene {
 
         this.setupGame();
         this.loadNextLevel();
+        if (isMobileDevice()) {
+            this.createMobileButtons = createMobileButtons.bind(this);
+            this.createMobileButtons();
+        }
         if (backgroundMusic){
             backgroundMusic.stop();
         }
@@ -1037,6 +1110,40 @@ class Level3Scene extends Phaser.Scene {
     }
 }
 
+function positionStartScreenElements() {
+    const width = this.game.canvas.width;
+    const height = this.game.canvas.height;
+    const insetFactor = 0.8;
+    const rectangleWidth = width * insetFactor;
+    const rectangleHeight = height * insetFactor;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    this.bg.setPosition(centerX, centerY).setDisplaySize(width, height);
+
+    this.welcomeImage.setPosition(
+        centerX,
+        centerY - rectangleHeight * 0.13
+    );
+    this.fitToContainer(this.welcomeImage, rectangleWidth * 1.5, rectangleHeight * 0.6);
+
+    this.leftButton.setPosition(
+        centerX - rectangleWidth * 0.15,
+        centerY + rectangleHeight * 0.3
+    );
+    this.fitToContainer(this.leftButton, 48, 48);
+
+    this.rightButton.setPosition(
+        centerX + rectangleWidth * 0.15,
+        centerY + rectangleHeight * 0.3
+    );
+    this.fitToContainer(this.rightButton, 48, 48);
+
+    this.whiteRectangle
+        .setPosition(centerX, centerY)
+        .setSize(rectangleWidth, rectangleHeight);
+}
+
 class StartScreen extends Phaser.Scene {
     constructor() {
         super({ key: 'StartScreen' });
@@ -1052,36 +1159,39 @@ class StartScreen extends Phaser.Scene {
         this.load.image('welcome', 'assets/ui/templates/welcome.png');
         this.load.image('leftButton', 'assets/ui/buttons/left_button.png');
         this.load.image('rightButton', 'assets/ui/buttons/right_button.png');
-
     }
 
     create() {
 
-        const bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDisplaySize(this.scale.width, this.scale.height);
+        this.bg = this.add.image(this.scale.width / 2, this.scale.height / 2, 'background').setDisplaySize(this.scale.width, this.scale.height);
 
+        // Create white rectangle
         const insetFactor = 0.8;
-        const rectangleWidth = this.scale.width * insetFactor;
-        const rectangleHeight = this.scale.height * insetFactor;
         const centerX = this.scale.width / 2;
         const centerY = this.scale.height / 2;
+        const rectangleWidth = this.scale.width * insetFactor;
+        const rectangleHeight = this.scale.height * insetFactor;
+        this.whiteRectangle = this.add
+            .rectangle(
+              centerX,
+              centerY,
+              rectangleWidth,
+              rectangleHeight,
+              0xffffff
+            )
+            .setStrokeStyle(4, 0x000000);
 
-        const whiteRectangle = this.add.rectangle(centerX, centerY, rectangleWidth, rectangleHeight, 0xFFFFFF).setStrokeStyle(4, 0x000000);
+        // Initiate graphics
+        this.welcomeImage = this.add.image(0, 0, 'welcome');
+        this.leftButton = this.add.image(0, 0, 'leftButton');
+        this.rightButton = this.add.image(0, 0, 'rightButton');
 
-        const welcomeImage = this.add.image(centerX, centerY - rectangleHeight * 0.13, 'welcome');
-        this.fitToContainer(welcomeImage, rectangleWidth * 1.5, rectangleHeight * 0.6);
-
-        const leftButton = this.add.image(centerX - rectangleWidth * 0.15, centerY + rectangleHeight * 0.3, 'leftButton');
-        this.fitToContainer(leftButton, 48, 48);
-
-        const rightButton = this.add.image(centerX + rectangleWidth * 0.15, centerY + rectangleHeight * 0.3, 'rightButton');
-        this.fitToContainer(rightButton, 48, 48);
-
-        leftButton.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+        this.leftButton.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
             // console.log('Opening Player Select Screen');
             this.scene.start('PlayerSelectScreen');
         });
 
-        rightButton.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
+        this.rightButton.setInteractive({ useHandCursor: true }).on('pointerdown', () => {
             // console.log('Opening Tutorial Screen');
             this.scene.start('TutorialScreen');
         });
@@ -1094,6 +1204,10 @@ class StartScreen extends Phaser.Scene {
             backgroundMusic = this.sound.add('lobbyMusic', { loop: true });
             backgroundMusic.play();
         }
+        
+        this.positionStartScreenElements = positionStartScreenElements.bind(this);
+        this.positionStartScreenElements();
+        this.scale.on("resize", this.positionStartScreenElements, this);
     }
 
     fitToContainer(image, maxWidth, maxHeight) {
@@ -1545,8 +1659,8 @@ class GameOverScene extends Phaser.Scene {
 // Main Phaser configuration for the game
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: isMobileDevice() ? window.innerWidth : 800, // Set width to the full width of the window
+    height: isMobileDevice() ? window.innerHeight : 600, // Set height to the full height of the window
     physics: {
         default: 'arcade',
         arcade: {
@@ -1565,9 +1679,34 @@ const config = {
         YouWonScene, 
         GameOverScene
     ],
-    pixelArt: true,
+    scale: isMobileDevice() ? {
+        mode: Phaser.Scale.RESIZE,
+    } : null,
+    autoCenter: true,
+    pixelArt: !isMobileDevice(),
     backgroundColor: '#1b1b1b',
 };
 
 // Initialize the Phaser game with the config
 const game = new Phaser.Game(config);
+
+// Listen for the window resize event
+window.addEventListener("resize", () => {
+    if (isMobileDevice()) {
+        // Destroy the current game instance
+        game.destroy(true); // Use true to remove the canvas from the DOM
+
+        // Update the config with new window size
+        config.width = window.innerWidth;
+        config.height = window.innerHeight;
+
+        // Reinitialize the game with the new config
+        game = new Phaser.Game(config);
+    }
+});
+
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    window.scrollTo(0, 1);
+  }, 0);
+});
