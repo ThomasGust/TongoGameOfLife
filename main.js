@@ -304,9 +304,9 @@ function _preload() {
   this.load.audio("levelUpSound", "assets/sounds/levelUp.wav");
 
   this.load.audio("lobbyMusic", "assets/sounds/lobbyMusic.mp3");
-  this.load.audio("level1Music", "assets/sounds/retroloop1.mp3");
-  this.load.audio("level2Music", "assets/sounds/retroloop2.mp3");
-  this.load.audio("level3Music", "assets/sounds/retroloop3.mp3");
+  this.load.audio("level1Music", "assets/sounds/retroLoop1.mp3");
+  this.load.audio("level2Music", "assets/sounds/retroLoop2.mp3");
+  this.load.audio("level3Music", "assets/sounds/retroLoop3.mp3");
 
   this.assetsLoaded = true;
 }
