@@ -744,10 +744,14 @@ function loadNextLevel() {
       this.lives = [];
       this.livesCount = 3;
       for (let i = 0; i < 3; i++) {
-        const heart = this.add
+        const heart = isMobileDevice() ? 
+					this.add
+          .image(this.game.config.width - 60 - i * 50, 10, "heart_full")
+          .setOrigin(0, 0)
+					: this.add
           .image(730 - i * 70, 10, "heart_full")
           .setOrigin(0, 0);
-        heart.setScale(0.75);
+        heart.setScale(isMobileDevice() ? 0.5 : 0.75);
         heart.setScrollFactor(0);
         this.lives.push(heart);
       }
@@ -855,42 +859,64 @@ function update(time, delta) {
 
   // Prevent movement or animation changes while shooting
   if (!this.isShooting) {
+    // Reset X velocity first
     this.player.setVelocityX(0);
 
+    // Track if the player is moving horizontally
+    let isMovingHorizontally = false;
+
+    // Handle left/right movement
     if (this.isLeftPressed || this.cursors.left.isDown) {
       this.player.setVelocityX(-this.speed);
       this.player.setFlipX(true);
+      isMovingHorizontally = true;
 
-      if (this.player.body.blocked.down) {
-        this.player.anims.play("run", true); // Play run if on the ground
+      if (
+        this.player.body.blocked.down &&
+        !this.isJumpPressed &&
+        !this.cursors.up.isDown
+      ) {
+        this.player.anims.play("run", true); // Play run if on the ground and not jumping
       }
     } else if (this.isRightPressed || this.cursors.right.isDown) {
       this.player.setVelocityX(this.speed);
       this.player.setFlipX(false);
+      isMovingHorizontally = true;
 
-      if (this.player.body.blocked.down) {
-        this.player.anims.play("run", true); // Play run if on the ground
+      if (
+        this.player.body.blocked.down &&
+        !this.isJumpPressed &&
+        !this.cursors.up.isDown
+      ) {
+        this.player.anims.play("run", true); // Play run if on the ground and not jumping
       }
-    } else if (this.player.body.blocked.down) {
+    }
+
+    // Handle idle state (not moving)
+    if (
+      !isMovingHorizontally &&
+      this.player.body.blocked.down &&
+      !this.isJumpPressed &&
+      !this.cursors.up.isDown
+    ) {
       this.player.anims.play("idle", true); // Play idle when not moving and on the ground
     }
 
-    // Check if the player is jumping
-    if (!this.player.body.blocked.down) {
-      this.player.anims.play("jump", true); // Play jump animation while airborne
-    }
-
-    // Handle jump input
+    // Handle jump input (this part is updated)
     if (
       (this.isJumpPressed || this.cursors.up.isDown) &&
       this.player.body.blocked.down
     ) {
-      this.player.setVelocityY(-this.jh);
+      this.player.setVelocityY(-this.jh); // Jump only if on the ground
       this.player.anims.play("jump", true); // Start jump animation when jumping
       this.sound.play("jumpSound");
     }
-  }
 
+    // Handle airborne state (jumping/falling)
+    if (!this.player.body.blocked.down) {
+      this.player.anims.play("jump", true); // Play jump animation while airborne
+    }
+  }
   if ((this.spaceBar.isDown || this.isShootPressed) && this.canShoot) {
     this.shootTongoCard();
   }
@@ -1300,6 +1326,7 @@ class StartScreen extends Phaser.Scene {
     this.clearLevel();
     this.load.image("background", "assets/background/sky.png");
     this.load.image("welcome", "assets/ui/templates/welcome.png");
+    this.load.image("welcomeMobile", "assets/ui/mobile/welcome.png");
     this.load.image("leftButton", "assets/ui/buttons/left_button.png");
     this.load.image("rightButton", "assets/ui/buttons/right_button.png");
   }
@@ -1320,7 +1347,8 @@ class StartScreen extends Phaser.Scene {
       .setStrokeStyle(4, 0x000000);
 
     // Initiate graphics
-    this.welcomeImage = this.add.image(0, 0, "welcome");
+		const _welcomeImage = isMobileDevice() ? "welcomeMobile" : "welcome";
+    this.welcomeImage = this.add.image(0, 0, _welcomeImage);
     this.leftButton = this.add.image(0, 0, "leftButton");
     this.rightButton = this.add.image(0, 0, "rightButton");
 
@@ -1391,6 +1419,7 @@ class TutorialScreen extends Phaser.Scene {
   preload() {
     this.load.image("background", "assets/background/sky.png");
     this.load.image("howToPlay", "assets/ui/templates/howtoplay.png");
+    this.load.image("howToPlayMobile", "assets/ui/mobile/howtoplay.png");
     this.load.image("leftButton", "assets/ui/buttons/left_button.png");
     this.load.image("rightButton", "assets/ui/buttons/right_button.png");
   }
@@ -1410,10 +1439,11 @@ class TutorialScreen extends Phaser.Scene {
       .rectangle(centerX, centerY, rectangleWidth, rectangleHeight, 0xffffff)
       .setStrokeStyle(4, 0x000000);
 
+		const _howToPlayImage = isMobileDevice() ? "howToPlayMobile" : "howToPlay"
     const howToPlayImage = this.add.image(
       centerX,
       centerY - rectangleHeight * 0.1,
-      "howToPlay"
+			_howToPlayImage
     );
     this.fitToContainer(
       howToPlayImage,
@@ -1616,14 +1646,22 @@ class Level2Transition extends Phaser.Scene {
     const whiteRectangle = this.add
       .rectangle(centerX, centerY, 380, 460, 0xffffff)
       .setStrokeStyle(4, 0x000000);
-    const transitionImage3 = this.add
+    const transitionImage2 = isMobileDevice() ? this.add
+      .image(centerX, centerY - 40, "transitionImage2")
+      .setDisplaySize(200, 200) : 
+			this.add
       .image(centerX, centerY - 20, "transitionImage2")
       .setDisplaySize(320, 325);
 
-    const playButton = this.add
-      .image(centerX, centerY + 200, "playButton")
-      .setDisplaySize(120, 40)
-      .setInteractive({ useHandCursor: true });
+    const playButton = isMobileDevice()
+      ? this.add
+          .image(centerX, centerY + 100, "playButton")
+          .setDisplaySize(120, 40)
+          .setInteractive({ useHandCursor: true })
+      : this.add
+          .image(centerX, centerY + 200, "playButton")
+          .setDisplaySize(120, 40)
+          .setInteractive({ useHandCursor: true });
 
     playButton.on("pointerdown", () => {
       this.scene.start("Level2Scene", {
@@ -1669,14 +1707,24 @@ class Level3Transition extends Phaser.Scene {
     const whiteRectangle = this.add
       .rectangle(centerX, centerY, 380, 460, 0xffffff)
       .setStrokeStyle(4, 0x000000);
-    const transitionImage3 = this.add
-      .image(centerX, centerY - 20, "transitionImage3")
-      .setDisplaySize(320, 325);
 
-    const playButton = this.add
-      .image(centerX, centerY + 200, "playButton")
-      .setDisplaySize(120, 40)
-      .setInteractive({ useHandCursor: true });
+    const transitionImage3 = isMobileDevice()
+      ? this.add
+          .image(centerX, centerY - 40, "transitionImage3")
+          .setDisplaySize(200, 200)
+      : this.add
+          .image(centerX, centerY - 20, "transitionImage3")
+          .setDisplaySize(320, 325);
+
+		const playButton = isMobileDevice()
+      ? this.add
+          .image(centerX, centerY + 100, "playButton")
+          .setDisplaySize(120, 40)
+          .setInteractive({ useHandCursor: true })
+      : this.add
+          .image(centerX, centerY + 200, "playButton")
+          .setDisplaySize(120, 40)
+          .setInteractive({ useHandCursor: true });
 
     playButton.on("pointerdown", () => {
       this.scene.start("Level3Scene", {
@@ -1732,7 +1780,7 @@ class YouWonScene extends Phaser.Scene {
       backgroundMusic.stop();
     }
     //play you won music
-    this.sound.play("youWonSound");
+    // this.sound.play("youWonSound");
     const { width, height } = this.scale;
 
     // Add the sky background
@@ -1793,13 +1841,13 @@ class YouWonScene extends Phaser.Scene {
     scoreAttributes.forEach((attr, index) => {
       const colX =
         index * columnWidth + width / 2 - rectWidth / 2 + columnWidth / 2;
-      const colYStart = height / 2 - rectHeight / 4 + 130;
+      const colYStart = height / 2 - rectHeight / 4 + (isMobileDevice() ? 70 : 130);
 
       // Display the attribute label
       this.add
         .text(colX, colYStart, attr.label, {
           fontFamily: "pixelFont",
-          fontSize: "14px",
+          fontSize: isMobileDevice() ? "10px" : "14px",
           color: "#000000",
           align: "center",
         })
@@ -1808,9 +1856,9 @@ class YouWonScene extends Phaser.Scene {
       // Display the score value below the label
       const scoreValue = `$${attr.score}k`;
       this.add
-        .text(colX, colYStart + 40, scoreValue, {
+        .text(colX, colYStart + (isMobileDevice() ? 20 : 40), scoreValue, {
           fontFamily: "pixelFont",
-          fontSize: "17px",
+          fontSize: isMobileDevice() ? "14px" : "17px",
           color: "#000000",
           align: "center",
         })
@@ -1818,8 +1866,12 @@ class YouWonScene extends Phaser.Scene {
 
       // Display the meter below the score value
       const meterTexture = this.getMeterTexture(attr.color, attr.score);
-      const meterImage = this.add.image(colX, colYStart + 80, meterTexture);
-      meterImage.setDisplaySize(120, 30).setOrigin(0.5);
+      const meterImage = this.add.image(
+        colX,
+        colYStart + (isMobileDevice() ? 40 : 80),
+        meterTexture
+      );
+      isMobileDevice() ? meterImage.setDisplaySize(80, 20).setOrigin(0.5) : meterImage.setDisplaySize(120, 30).setOrigin(0.5);
     });
 
     // Add Total Score below the columns
@@ -1828,7 +1880,7 @@ class YouWonScene extends Phaser.Scene {
       this.savingsScore +
       this.businessScore +
       this.retirementScore;
-    const totalScoreY = height * 0.75;
+    const totalScoreY = height * (isMobileDevice() ? 0.7 : 0.75);
     this.add
       .text(width / 2, totalScoreY, `Total Score: $${totalScore}k`, {
         fontFamily: "pixelFont",
@@ -1901,7 +1953,7 @@ class GameOverScene extends Phaser.Scene {
       backgroundMusic.stop();
     }
     //play game over music
-    this.sound.play("gameOverSound");
+    // this.sound.play("gameOverSound");
     const { width, height } = this.scale;
 
     // Create a black rectangle to fill the entire screen
@@ -1953,13 +2005,13 @@ class GameOverScene extends Phaser.Scene {
       scoreAttributes.forEach((attr, index) => {
         const colX =
           index * columnWidth + width / 2 - rectWidth / 2 + columnWidth / 2;
-        const colYStart = height / 2 - rectHeight / 4 + 130;
+				const colYStart = height / 2 - rectHeight / 4 + (isMobileDevice() ? 70 : 130);
 
         // Display the attribute label
         this.add
           .text(colX, colYStart, attr.label, {
             fontFamily: "pixelFont",
-            fontSize: "14px",
+            fontSize: isMobileDevice() ? "10px" : "14px",
             color: "#000000",
             align: "center",
           })
@@ -1968,9 +2020,9 @@ class GameOverScene extends Phaser.Scene {
         // Display the score value below the label
         const scoreValue = `$${attr.score}k`;
         this.add
-          .text(colX, colYStart + 40, scoreValue, {
+				  .text(colX, colYStart + (isMobileDevice() ? 20 : 40), scoreValue, {
             fontFamily: "pixelFont",
-            fontSize: "17px",
+            fontSize: isMobileDevice() ? "14px" : "17px",
             color: "#000000",
             align: "center",
           })
@@ -1978,8 +2030,12 @@ class GameOverScene extends Phaser.Scene {
 
         // Display the meter below the score value
         const meterTexture = this.getMeterTexture(attr.color, attr.score);
-        const meterImage = this.add.image(colX, colYStart + 80, meterTexture);
-        meterImage.setDisplaySize(120, 30).setOrigin(0.5);
+				const meterImage = this.add.image(
+          colX,
+          colYStart + (isMobileDevice() ? 40 : 80),
+          meterTexture
+        );
+				isMobileDevice() ? meterImage.setDisplaySize(80, 20).setOrigin(0.5) : meterImage.setDisplaySize(120, 30).setOrigin(0.5);
       });
 
       // Add Total Score below the columns
@@ -1988,7 +2044,7 @@ class GameOverScene extends Phaser.Scene {
         this.savingsScore +
         this.businessScore +
         this.retirementScore;
-      const totalScoreY = height * 0.75;
+			const totalScoreY = height * (isMobileDevice() ? 0.7 : 0.75);
       this.add
         .text(width / 2, totalScoreY, `Total Score: $${totalScore}k`, {
           fontFamily: "pixelFont",
@@ -2060,6 +2116,20 @@ function checkOrientation() {
   }
 }
 
+function adjustGameSize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const adjustedWidth = Math.max(width, document.documentElement.clientWidth);
+  const adjustedHeight = Math.max(
+    height,
+    document.documentElement.clientHeight
+  );
+
+  if (game) {
+    game.scale.resize(adjustedWidth, adjustedHeight);
+  }
+}
+
 function destroyGame() {
   const oldContainer = document.getElementById("gameContainer");
   if (oldContainer) {
@@ -2110,7 +2180,10 @@ function handleOrientationChange() {
 // Listen for the resize event to handle orientation changes
 window.addEventListener("resize", () => {
   clearTimeout(window.resizing);
-  window.resizing = setTimeout(handleOrientationChange, 200);
+  window.resizing = setTimeout(() => {
+		handleOrientationChange();
+		adjustGameSize();
+	}, 200);
 });
 
 /*
