@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tongo Game of Life, Commissions!</title>
-    <style>
-        @font-face {
-            font-family: 'pixelFont';
-            src: url('assets/pixelFont.ttf') format('truetype');
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tongo Game of Life, Commissions!</title>
+  <style>
+    @font-face {
+      font-family: 'pixelFont';
+      src: url('assets/pixelFont.ttf') format('truetype');
+    }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'pixelFont', sans-serif;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-    <script defer src="main.js"></script>
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'pixelFont', sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    #pleaseRotate {
+      position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background: #fff;
+			line-height: 130%;
+			z-index: 10;
+			display: none;
+			padding: 30px;
+			justify-content: center;
+			align-items: center;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script defer src="main.js"></script>
 </head>
 <body>
-    <div id="gameContainer"></div>
+  <div id="gameContainer"></div>
+  <div id="pleaseRotate">
+		Play<br />Tongo Game of Life!<br />
+		Rotate your phone.
+  </div>
 </body>
 </html>
