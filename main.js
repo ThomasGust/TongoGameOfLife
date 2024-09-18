@@ -1,5 +1,6 @@
 let game;
 let backgroundMusic;
+const pleaseRotate = document.getElementById("pleaseRotate");
 
 // Check if the game is on a mobile device.
 function isMobileDevice() {
@@ -1357,6 +1358,29 @@ class StartScreen extends Phaser.Scene {
     const scale = Math.min(scaleX, scaleY);
     image.setScale(scale);
   }
+
+  cleanup() {
+    // Common cleanup logic
+    if (backgroundMusic) {
+      backgroundMusic.stop();
+      backgroundMusic.destroy();
+    }
+
+    // Remove timers
+    this.time.removeAllEvents();
+
+    // Destroy game objects
+    this.children.list.forEach((child) => {
+      if (child.active) {
+        child.destroy();
+      }
+    });
+
+    // Kill tweens
+    if (this.tweens) {
+      this.tweens.killAll();
+    }
+  }
 }
 
 class TutorialScreen extends Phaser.Scene {
@@ -1429,6 +1453,29 @@ class TutorialScreen extends Phaser.Scene {
     const scaleY = maxHeight / image.height;
     const scale = Math.min(scaleX, scaleY);
     image.setScale(scale);
+  }
+
+  cleanup() {
+    // Common cleanup logic
+    if (backgroundMusic) {
+      backgroundMusic.stop();
+      backgroundMusic.destroy();
+    }
+
+    // Remove timers
+    this.time.removeAllEvents();
+
+    // Destroy game objects
+    this.children.list.forEach((child) => {
+      if (child.active) {
+        child.destroy();
+      }
+    });
+
+    // Kill tweens
+    if (this.tweens) {
+      this.tweens.killAll();
+    }
   }
 }
 
@@ -1508,6 +1555,29 @@ class PlayerSelectScreen extends Phaser.Scene {
         this.scene.start("Level1Scene", { character: this.selectedCharacter });
       }
     });
+  }
+
+  cleanup() {
+    // Common cleanup logic
+    if (backgroundMusic) {
+      backgroundMusic.stop();
+      backgroundMusic.destroy();
+    }
+
+    // Remove timers
+    this.time.removeAllEvents();
+
+    // Destroy game objects
+    this.children.list.forEach((child) => {
+      if (child.active) {
+        child.destroy();
+      }
+    });
+
+    // Kill tweens
+    if (this.tweens) {
+      this.tweens.killAll();
+    }
   }
 }
 
@@ -1990,53 +2060,55 @@ function checkOrientation() {
   }
 }
 
-// Initialize the Phaser game with the config
-if (!isMobileDevice()) {
-  game = new Phaser.Game(config);
+function destroyGame() {
+  const oldContainer = document.getElementById("gameContainer");
+  if (oldContainer) {
+    oldContainer.remove(); // Remove the container from the DOM
+  }
+  const newContainer = document.createElement("div");
+  newContainer.id = "gameContainer";
+  document.body.appendChild(newContainer); // Add new container to the DOM
 }
-if (
-  isMobileDevice() &&
-  window.screen.orientation.type.startsWith("landscape")
-) {
+
+function initializeGame(config) {
+  config.parent = "gameContainer";
   game = new Phaser.Game(config);
 }
 
-// Function to determine if the device is in landscape mode
 function isLandscape() {
   return window.innerWidth > window.innerHeight;
+}
+
+// Initialize the Phaser game with the config
+if (!isMobileDevice()) {
+	initializeGame(config)
+}
+if (isMobileDevice()) {
+	if(isLandscape()) {
+		initializeGame(config);
+	} else {
+		pleaseRotate.style.display = "flex";
+	}
 }
 
 // Function to handle game reinitialization
 function handleOrientationChange() {
   if (isMobileDevice()) {
-    if (game && !game.isDestroyed) {
-      // Stop and destroy all active scenes
-      game.scene.getScenes(true).forEach((scene) => {
-        game.scene.stop(scene.scene.key); // Stop the scene
-        scene.sys.shutdown(); // Call the shutdown method to clear resources
-        scene.sys.destroy(); // Call destroy to ensure full cleanup
-      });
-
-      // Destroy the game instance
-      game.destroy(true);
-      game.isDestroyed = true;
-    }
-
-    // Update the config based on new window dimensions
-    config.width = window.innerWidth;
-    config.height = window.innerHeight;
-
-    // Recreate the game instance if in landscape mode
-    if (isLandscape()) {
-      game = new Phaser.Game(config);
-      game.isDestroyed = false;
-    }
-  }
+		if(isLandscape()) {
+			pleaseRotate.style.display = "none";
+			destroyGame();
+  		config.width = window.innerWidth;
+  		config.height = window.innerHeight;
+  		initializeGame(config);
+  	} else {
+			pleaseRotate.style.display = "flex";
+			destroyGame();
+		}
+	}
 }
 
 // Listen for the resize event to handle orientation changes
 window.addEventListener("resize", () => {
-  // Debounce to avoid rapid multiple triggers
   clearTimeout(window.resizing);
   window.resizing = setTimeout(handleOrientationChange, 200);
 });
